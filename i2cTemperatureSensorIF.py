@@ -1,6 +1,6 @@
 # i2cTemperatureSensorIF.py
 # Collect temperature data from 1-wire sensors in basement
-# 09/09/2015
+# 07/04/2017
 
 import DS2482
 import array
@@ -42,7 +42,8 @@ crcTable = [0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 
 print "========================================"
 
 #temperatureController = DS2482.DS2482(address=0x18, busnum=1)
-temperatureController = DS2482.DS2482()
+#temperatureController = DS2482.DS2482()
+temperatureController = DS2482.DS2482(address=0x18, busnum=2)
 
 result = temperatureController.DS2482_reset()
 if result:

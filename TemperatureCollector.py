@@ -1,6 +1,6 @@
 # TemperatureCollector.py
 # Collects and stores temperature data; sends data to Mac on command
-# 10/09/2015
+# 07/04/2017
 
 from socket import *
 import array
@@ -41,7 +41,7 @@ CRC_TABLE = [0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31,
 			 233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
 			 116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53]
 
-SAMPLE_PERIOD = 5		# seconds between temperature samples
+SAMPLE_PERIOD = 10		# seconds between temperature samples
 
 #________________________________________________
 def GetTemperatureData():
@@ -203,8 +203,8 @@ numTempSamples = 0
 scheduler = Scheduler()
 scheduler.new(server(8888))
 
-#temperatureController = DS2482.DS2482(address=0x18, busnum=1)
-temperatureController = DS2482.DS2482()
+temperatureController = DS2482.DS2482(address=0x18, busnum=2)
+#temperatureController = DS2482.DS2482()
 
 result = temperatureController.DS2482_reset()
 if result:

@@ -1,6 +1,6 @@
 # TemperatureServer.py
 # Responds to commands from Mac, including collecting temperature data
-# 09/26/2015
+# 07/04/2017
 
 from socket import *
 import DS2482
@@ -155,7 +155,7 @@ def GetTemperatureData():
 	return (ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF)
 
 # Create display with specific I2C address and/or bus
-display = Matrix8x8.Matrix8x8(address=0x71, busnum=1)
+display = Matrix8x8.Matrix8x8(address=0x71, busnum=2)
 
 # Initialize display; must be called once before using display
 display.begin()
@@ -181,8 +181,8 @@ display.write_display()
 
 print "========================================"
 
-#temperatureController = DS2482.DS2482(address=0x18, busnum=1)
-temperatureController = DS2482.DS2482()
+temperatureController = DS2482.DS2482(address=0x18, busnum=2)
+#temperatureController = DS2482.DS2482()
 
 result = temperatureController.DS2482_reset()
 if result:
