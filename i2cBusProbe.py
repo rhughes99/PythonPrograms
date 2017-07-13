@@ -1,12 +1,14 @@
 # i2cBusProbe.py
 # Playing around with probing i2c bus, checking which devices are plugged in
-# 07/12/2017
+# 07/13/2017
 
 import time
 import DS2482
 #import MCP4725
 from Adafruit_LED_Backpack import SevenSegment
 from Adafruit_LED_Backpack import Matrix8x8
+from PIL import Image
+from PIL import ImageDraw
 
 # Try known I2C interfaces, looking for exceptions
 
@@ -32,6 +34,7 @@ sevenSegDisplay = 1
 try:
 	sevenDisplay = SevenSegment.SevenSegment(address=0x70, busnum=2)
 	sevenDisplay.begin()
+	sevenDisplay.clear()
 #except IOError as e:
 except Exception:
 	sevenSegDisplay = 0
@@ -42,6 +45,7 @@ matrixDisplay = 1
 try:
 	matDisplay = Matrix8x8.Matrix8x8(address=0x71, busnum=2)
 	matDisplay.begin()
+	matDisplay.clear()
 except IOError as e:
 #except Exception:
 	matrixDisplay = 0
@@ -60,6 +64,10 @@ if sevenSegDisplay == 1:
 if matrixDisplay == 1:
 	print "8x8 matrix display on-line"
 
+print "---- End of bus scan ----"
+time.sleep(1)
+
+
 colon = False
 if sevenSegDisplay == 1:
 	for i in range(0xFF):
@@ -67,9 +75,14 @@ if sevenSegDisplay == 1:
 		sevenDisplay.print_hex(i)
 		sevenDisplay.set_colon(colon)
 		sevenDisplay.write_display()
-		time.sleep(0.25)
+		time.sleep(0.05)
+	
+	sevenDisplay.print_hex(0xAA)
 
-if matrixDisplay:
+
+if matrixDisplay == 1:
+	matDisplay.clear()
+	
 	# First create an 8x8 1 bit color image
 	image = Image.new('1', (8, 8))
 	
@@ -84,10 +97,10 @@ if matrixDisplay:
 	draw.line((1,6,6,1), fill=255)
 	
 	# Draw image on display buffer
-	display.set_image(image)
+	matDisplay.set_image(image)
 	
 	# Draw buffer to display hardware
-	display.write_display()
+	matDisplay.write_display()
 
 
 
