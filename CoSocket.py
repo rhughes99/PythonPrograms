@@ -1,6 +1,9 @@
-# CoSocket.py
-# Socket wrapper for coroutines, pg 465
-# 09/29/2015
+"""
+Socket wrapper for coroutines.
+
+Python Essential Reference, page 465.
+Last touched: 08/18/2017
+"""
 
 class CoSocket(object):
 	def __init__(self,sock):

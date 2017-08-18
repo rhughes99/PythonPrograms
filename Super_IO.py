@@ -1,6 +1,9 @@
-# Super_IO.py
-# Where we exercise a little of everything
-# 04/14/2015
+"""
+Where we exercise a little of everything.
+
+Requires Adafruit BBIO and LED Backpack libraries.
+Last touched:  08/16/2017
+"""
 
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.ADC as ADC

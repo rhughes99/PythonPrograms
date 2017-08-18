@@ -1,3 +1,9 @@
+"""
+Class for MCP4725 DAC.
+
+Last touched: 08/18/2017
+"""
+
 from Adafruit_I2C import Adafruit_I2C
 import numpy as np
 import time

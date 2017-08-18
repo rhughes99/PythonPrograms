@@ -1,5 +1,9 @@
-# gpioStepperControl.py
-# 08/30/2016
+"""
+Playing with stepper motor control.
+
+Requires Adafruit BBIO GPIO library.
+Last touched: 08/18/2017
+"""
 
 import Adafruit_BBIO.GPIO as GPIO
 import time

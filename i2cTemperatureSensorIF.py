@@ -1,6 +1,8 @@
-# i2cTemperatureSensorIF.py
-# Collect temperature data from 1-wire sensors in basement
-# 07/04/2017
+"""
+Takes snapshot of temperature data from 1-wire sensors in basement.
+
+Last touched: 08/18/2017
+"""
 
 import DS2482
 import array

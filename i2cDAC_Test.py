@@ -1,4 +1,8 @@
-# Test code for MCP4725
+"""
+Test code for MCP4725 DAC.
+
+Last touched: 08/18/2017
+"""
 
 import numpy as np
 import time

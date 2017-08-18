@@ -1,6 +1,9 @@
-# MPL3116A2_Barometer.py
-# Refer to MPL3115A2 Altimeter.pdf and AN4519 Altimeter App Note.pdf
-# 09/12/2016
+"""
+Class for MPL3115A2 barometric sensor.
+
+Refer to MPL3115A2 Altimeter.pdf and AN4519 Altimeter App Note.pdf.
+Last touched: 08/18/2018
+"""
 
 import time
 

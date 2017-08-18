@@ -1,6 +1,8 @@
-# i2cBarometerSensorTest.py
-# 
-# 09/12/2016
+"""
+Test of MPL3116A2 barometer sensor.
+
+Last touched: 08/18/2017
+"""
 
 import MPL3116A2_Barometer as baroSense
 import time

@@ -1,6 +1,9 @@
-# Scheduler.py
-# I/O-based task scheduler for coroutines, pg 460
-# 09/30/2015
+"""
+I/O-based task scheduler for coroutines.
+
+Python Essential Reference, page 460.
+Last touched: 08/18/2017
+"""
 
 import select
 import types

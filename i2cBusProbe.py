@@ -1,6 +1,8 @@
-# i2cBusProbe.py
-# Playing around with probing i2c bus, checking which devices are plugged in
-# 07/13/2017
+"""
+Playing around with probing i2c bus, determining which devices are plugged in.
+
+Last touched: 08/18/2017
+"""
 
 import time
 import DS2482

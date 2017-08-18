@@ -1,5 +1,8 @@
-# Routines for accessing DS2482-100 and connected 1-wire devices
-# 09/08/2015
+"""
+Routines for accessing DS2482-100 and connected 1-wire devices.
+
+Last touched: 08/16/2017
+"""
 
 # --- Constants ---
 DEFAULT_ADDRESS		= 0x18		# 00110<AD1><AD0>

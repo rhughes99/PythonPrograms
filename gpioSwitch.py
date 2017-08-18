@@ -1,4 +1,9 @@
-# gpioSwitch.py
+"""
+Very basic GPIO input routine.
+
+Requires Adafruit BBIO GPIO library.
+Last touched: 08/18/2016
+"""
 
 import Adafruit_BBIO.GPIO as GPIO
 import time

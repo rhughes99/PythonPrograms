@@ -1,4 +1,9 @@
-# gpioSpeedTest.py
+"""
+Playing around with toggling P8_10 as fast as possible.
+
+Requires Adafruit BBIO GPIO library.
+Last modified: 08/16/2017
+"""
 
 import Adafruit_BBIO.GPIO as GPIO
 import time

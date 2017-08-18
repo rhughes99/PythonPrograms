@@ -1,6 +1,9 @@
-# TemperatureServer.py
-# Responds to commands from Mac, including collecting temperature data
-# 07/04/2017
+"""
+Responds to commands from Mac, including collecting temperature data.
+
+Works with XCode BeagleBoneClient.
+Last touched: 08/18/2017
+"""
 
 from socket import *
 import DS2482

@@ -1,6 +1,9 @@
-# asynchatServer.py
-# from page 453
-# An asynchronous HTTP server using asnychat
+"""
+Asychronous HTTP server using asynchat.
+
+From Python Essential Reference, page 453.
+Last touched: 08/16/2017
+"""
 
 import asynchat, asyncore, socket
 import os

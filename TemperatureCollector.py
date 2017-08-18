@@ -1,6 +1,9 @@
-# TemperatureCollector.py
-# Collects and stores temperature data; sends data to Mac on command
-# 07/04/2017
+"""
+Collects and stores temperature data; sends data to Mac on command.
+
+Works with XCode BeagleBoneClient2.
+Last touched: 08/18/2017
+"""
 
 from socket import *
 import array
