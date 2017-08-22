@@ -1,7 +1,7 @@
 """
 Test of MPL3116A2 barometer sensor.
 
-Last touched: 08/18/2017
+Last touched: 08/22/2017
 """
 
 import MPL3116A2_Barometer as baroSense
@@ -9,9 +9,10 @@ import time
 
 print "========================================"
 
-baroController = baroSense.Barometer()
+baroController = baroSense.Barometer(address=0x60, busnum=2)
 
 status, ctrl1, ctrl2, ctrl3, ctrl4, ctrl5 = baroController.getStatusAndControlRegisters()
+print "Status:"
 print "0x%X 0x%X 0x%X 0x%X 0x%X 0x%X " % (status, ctrl1, ctrl2, ctrl3, ctrl4, ctrl5)
 
 if status & 0x80:
@@ -64,7 +65,7 @@ while 1:
 		avgTemperature += currentTemp
 		avgTempDelta   += currentTempDelta
 		
-		time.sleep(0.5)
+		time.sleep(0.7)
 	
 	timeTag = (startTime + (time.time() - startTime) / 2) - T_ZERO
 	
@@ -78,5 +79,5 @@ while 1:
 #	print "avgPressure    = %.2f inch Hg" % (avgPressure)
 #	print "avgAltitude    = %.1f ft" % (avgAltitude)
 #	print "avgTemperature = %.1f deg F\n" % (avgTemperature)
-	print "%d\t%f\t%f\t%f\t%f\t%f\t%f" % (timeTag, avgPressure, avgPressDelta, avgAltitude, avgAltDelta, avgTemperature, avgTempDelta)
-
+#	print "%d\t%f\t%f\t%f\t%f\t%f\t%f" % (timeTag, avgPressure, avgPressDelta, avgAltitude, avgAltDelta, avgTemperature, avgTempDelta)
+	print "%d\t%f\t%f" % (timeTag, avgPressure, avgTemperature)
