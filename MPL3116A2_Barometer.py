@@ -2,7 +2,7 @@
 Class for MPL3115A2 barometric sensor.
 
 Refer to MPL3115A2 Altimeter.pdf and AN4519 Altimeter App Note.pdf.
-Last touched: 08/18/2018
+Last touched: 08/24/2018
 """
 
 import time
@@ -171,7 +171,8 @@ class Barometer(object):
 		pressureLSB = self._device.readU8(MPL3115A2_REGISTER_PRESSURE_LSB)
 		
 		pressure = ((pressureMSB<<16) + (pressureCSB<<8) + pressureLSB) / 64.0
-		pressureHg = pressure * 0.0002953006		# 1 Pascal = 0.0002953006 inch mercury (32 deg F)
+#		pressureHg = pressure * 0.0002953006		# 1 Pascal = 0.0002953006 inch mercury (32 deg F)
+		pressureHg = pressure * 0.0002961			# 1 Pascal = 0.000296134  inch mercury (60 deg F)
 		return pressureHg
 
 	#________________________________________________
@@ -191,7 +192,8 @@ class Barometer(object):
 		else:
 			pressureDelta = pressureDelta / 64.0
 		
-		pressureDeltaHg = pressureDelta * 0.0002953006		# 1 Pascal = 0.0002953006 inch mercury (32 deg F)
+#		pressureDeltaHg = pressureDelta * 0.0002953006		# 1 Pascal = 0.0002953006 inch mercury (32 deg F)
+		pressureDeltaHg = pressureDelta * 0.0002961			# 1 Pascal = 0.000296134  inch mercury (60 deg F)
 		return pressureDeltaHg
 
 	#________________________________________________
