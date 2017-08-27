@@ -111,13 +111,17 @@ def main():
 	print "\n=============================="
 	time.sleep(2.0)
 	
+	sevenSegDisplay.set_colon(False)
+	
 	while True:
 		
 		ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF = GetTemperatureData()
 		
 		currentPressure,currentPressDelta = GetBarometerData()
 		
-		print "Temperature: %f deg F\tPressure: %f in mm" % (outTempF,currentPressure)
+		print "Temperature: %.1f deg F\tPressure: %.1f in mm" % (outTempF,currentPressure)
+		sevenSegDisplay.print_float(currentPressure)
+		sevenSegDisplay.write_display()
 		
 		time.sleep(5)
 
@@ -249,6 +253,7 @@ def SetSevenSegDisplay(a,b,c,d):
 	sevenSegDisplay.set_digit(1, b)
 	sevenSegDisplay.set_digit(2, c)
 	sevenSegDisplay.set_digit(3, d)
+	sevenSegDisplay.set_colon(True)
 	
 	# Write display buffer to hardware
 	# Must be called to update actual display LEDs
