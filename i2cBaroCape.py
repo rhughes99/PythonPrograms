@@ -1,7 +1,7 @@
 """
 Collects temperature and barometric data using BaroCape.
 
-Last touched: 08/27/2017
+Last touched: 08/29/2017
 """
 
 import array
@@ -12,7 +12,7 @@ import DS2482
 from Adafruit_LED_Backpack import SevenSegment
 import MPL3116A2_Barometer as BaroSense
 
-SAMPLE_PERIOD = 10		# seconds between data samples
+SAMPLE_PERIOD = 5		# seconds between data samples
 
 # Temperature sensor codes and locations
 # Sensor 0 (0x5F000003AA865228) - breadboard, basement ambient temperature
@@ -115,15 +115,17 @@ def main():
 	
 	while True:
 		
+		nowStr = time.asctime(localtime())			# time of data collection
+		
 		ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF = GetTemperatureData()
 		
 		currentPressure,currentPressDelta = GetBarometerData()
 		
-		print "Temperature: %.1f deg F\tPressure: %.1f in mm" % (outTempF,currentPressure)
+		print "%s: Temperature= %.1f deg F\tPressure= %.1f in mm" % (nowStr, outTempF, currentPressure)
 		sevenSegDisplay.print_float(currentPressure)
 		sevenSegDisplay.write_display()
 		
-		time.sleep(5)
+		time.sleep(SAMPLE_PERIOD)
 
 
 #________________________________________________
