@@ -1,7 +1,8 @@
 """
 Collects temperature and barometric data using BaroCape.
 
-Last touched: 08/29/2017
+Writes data to BaroData.txt.
+Last touched: 09/13/2017
 """
 
 import array
@@ -12,7 +13,7 @@ import DS2482
 from Adafruit_LED_Backpack import SevenSegment
 import MPL3116A2_Barometer as BaroSense
 
-SAMPLE_PERIOD = 5		# seconds between data samples
+SAMPLE_PERIOD = 100		# seconds between data samples
 
 # Temperature sensor codes and locations
 # Sensor 0 (0x5F000003AA865228) - breadboard, basement ambient temperature
@@ -28,7 +29,7 @@ ROM_CODE = [[0x28,0x52,0x86,0xAA,0x03,0x00,0x00,0x5F],
 			[0x28,0xC2,0xAB,0xAA,0x03,0x00,0x00,0xFA], 
 			[0x28,0x6E,0xAA,0xAA,0x03,0x00,0x00,0x16], 
 			[0x28,0xEB,0x72,0xAA,0x03,0x00,0x00,0x77], 
-			[0x28,0xC1,0xFF,0x3E,0x04,0x00,0x00,0xBC]]	
+			[0x28,0xC1,0xFF,0x3E,0x04,0x00,0x00,0xBC]] 
 
 CRC_TABLE = [0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
 			 157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,
@@ -75,26 +76,26 @@ try:
 except Exception:
 	print "*** MPL3116A2 barometer module not found!"
 	sys.exit()
-	
-	
+
+
 #________________________________________________
 def main():
 	# Required devices present; initialize them
-	
+
 	# Temperature sensor network
 	# Select Active PullUp - required when >1 sensor connected to bus
-	temperatureController.DS2482_writeConfiguration(0x01)	
-	
+	temperatureController.DS2482_writeConfiguration(0x01)
+
 	# Barometer module
 	baroController.setPressureEventFlag()
 	baroController.setBarometerMode()
-	
+
 	# Display - display current time
 	now = datetime.datetime.now()
 	hour = now.hour - 4       			# convert to local time
 	minute = now.minute
 	second = now.second
-	
+
 	sevenSegDisplay.clear()
 	# Set hours
 #	sevenSegDisplay.set_digit(0, int(hour / 10))	# Tens
@@ -104,28 +105,50 @@ def main():
 #	sevenSegDisplay.set_digit(3, minute % 10)		# Ones
 	# Toggle colon
 #	sevenSegDisplay.set_colon(second % 2)			# Toggle colon at 1Hz
-	
+
 	SetSevenSegDisplay(int(hour/10), hour%10, int(minute/10), minute%10)
-	
+
+	numSamples = 0
+
+	# Open data file
+	file = open("BaroData.txt",'w')
+	file.write("Date\tTime\tOut Temp\tIn Temp\tPressure\n")
+	file.close()
+
 	# Ready to go - pause to catch our breath
 	print "\n=============================="
 	time.sleep(2.0)
-	
+
 	sevenSegDisplay.set_colon(False)
-	
+	print "Date\tTime\tOut Temp (deg F)\tIn Temp\tPressure (in mm)"
+
 	while True:
-		
-		nowStr = time.asctime(localtime())			# time of data collection
-		
-		ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF = GetTemperatureData()
-		
-		currentPressure,currentPressDelta = GetBarometerData()
-		
-		print "%s: Temperature= %.1f deg F\tPressure= %.1f in mm" % (nowStr, outTempF, currentPressure)
-		sevenSegDisplay.print_float(currentPressure)
-		sevenSegDisplay.write_display()
-		
-		time.sleep(SAMPLE_PERIOD)
+		try:
+			now = time.localtime()
+			today = datetime.date.today()
+#			print "%s\t%d:%d:%d" % (today, now[3], now[4], now[5])
+
+			ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF = GetTemperatureData()
+			currentPressure,currentPressDelta = GetBarometerData()
+			numSamples += 1
+
+			# Print what we are putting in BaroData.txt
+			print "%s\t%d:%d:%d\t%.1f\t%.1f\t%.1f" % (today, now[3], now[4], now[5], outTempF, ambTempF, currentPressure)
+
+			file = open("BaroData.txt",'a')
+			file.write("%s\t%d:%d:%d\t%.1f\t%.1f\t%.2f\n" % 
+					(today, now[3], now[4], now[5], outTempF, ambTempF, currentPressure))
+			file.close()
+
+			# Display pressure on 7-seg display
+			sevenSegDisplay.print_float(currentPressure)
+			sevenSegDisplay.write_display()
+
+			time.sleep(SAMPLE_PERIOD)
+		except KeyboardInterrupt:
+			print " -----------------------------"
+			print "%d samples" % (numSamples)
+			sys.exit()
 
 
 #________________________________________________
@@ -135,23 +158,23 @@ def GetTemperatureData():
 	# 	Send Skip ROM command (address all 1-Wire devices)
 	# 	Send Convert T command
 	# 	Start temperature conversion timer
-	
+
 	# All DS18B20 transactons start with initialization (reset OW bus)
 	temperatureController.DS2482_owReset()
-	
+
 	# Send DS18B20 Skip ROM command
 	temperatureController.DS2482_owWriteByte(0xCC)		# DS18B20 Skip ROM
-	
+
 	# Send DS18B20 Convert T command
 	temperatureController.DS2482_owWriteByte(0x44)		# DS18B20 Convert T
-	
+
 	# Capture and display conversion time
 	timestr = time.ctime(time.time())
 #	print "---------- [%d] Temperature conversion started: %s ----------" % (numTempSamples+1,timestr)
-	
+
 	# Wait for temperature conversion (750 ms for 12 bits)
 	time.sleep(0.8)
-	
+
 	# Individually read temperature from each connected sensor
 	# 	Send 1-Wire Reset
 	# 	Send Match ROM command
@@ -162,7 +185,7 @@ def GetTemperatureData():
 	# 	Set DS2482 read pointer to Data Register
 	# 	Read byte from DS2482
 	# 	Convert data to temperature
-	
+
 	ambTempF		= -999
 	mainRadTempF	= -999
 	libRadTempF		= -999
@@ -173,78 +196,78 @@ def GetTemperatureData():
 	for sensor in range(7):
 		# All DS18B20 transactons start with initialization (reset OW bus)
 		temperatureController.DS2482_owReset()
-		
+
 		# Send DS18B20 Match ROM command
 		temperatureController.DS2482_owWriteByte(0x55)		# DS18B20 Match ROM
-		
+
 		# Send 8 bytes of ROM code
 		for romByte in range(8):
 			temperatureController.DS2482_owWriteByte(ROM_CODE[sensor][romByte])
-		
+
 		# Send DS18B20 Read Scratchpad command
 		temperatureController.DS2482_owWriteByte(0xBE)		# DS18B20 Read Scratchpad
-		
+
 		crc8 = 0
 		scratchPad = array.array('B',[])
 		# Read 9 bytes of scratchpad
 		for i in range(9):
 			temperatureController.DS2482_owReadByte()
-			
+
 			# Set read pointer
 			temperatureController.DS2482_setReadPointer(DS2482.DS2482_READ_DATA_REG)
-			
+
 			# Read byte from DS2482
-			scratchPad.append(temperatureController._device.readRaw8())		
+			scratchPad.append(temperatureController._device.readRaw8())
 			crc8 = CRC_TABLE[crc8 ^ scratchPad[i]]
-		
+
 		if crc8 == 0:
 			# Convert scratchpad bytes 0 (LSB) & 1 (MSB) to temperature
 			temperatureDegC = (scratchPad[0] / 16.0) + (scratchPad[1] & 0x07) * 16.0;
 			if scratchPad[1] & 0x08:		# temperature <0 deg C
 				temperatureDegC = temperatureDegC - 128.0
-			
+
 			temperatureDegF = 9.0 / 5.0 * temperatureDegC + 32.0
 			if sensor == 0:
 				ambTempF = temperatureDegF
-			
+
 			elif sensor == 1:
 				mainRadTempF = temperatureDegF
-			
+
 			elif sensor == 2:
 				libRadTempF = temperatureDegF
-			
+
 			elif sensor == 3:
 				radSupTempF = temperatureDegF
-			
+
 			elif sensor == 4:
 				h2oInTempF = temperatureDegF
-			
+
 			elif sensor == 5:
 				h2oOutTempF = temperatureDegF
-			
+
 			elif sensor == 6:
 				outTempF = temperatureDegF
-			
+
 			else:
 				print "*** Need to add some code!!!"
-					
+
 		else:
 			print "*** scratchPad data checksum BAD for sensor %d" % (sensor)
-	
+
 #	print "Basement ambient\t\t= %0.1f deg F" % (ambTempF)
-#	print "Outside\t\t\t\t= %0.1f deg F" % (outTempF)			
+#	print "Outside\t\t\t\t= %0.1f deg F" % (outTempF)
 #	print "Radiator supply\t\t\t= %0.1f deg F" % (radSupTempF)
 #	print " Main house radiator return\t= %0.1f deg F" % (mainRadTempF)
 #	print " Library radiator return\t= %0.1f deg F" % (libRadTempF)
 #	print "H20 heater input\t\t= %0.1f deg F" % (h2oInTempF)
 #	print "H20 heater output\t\t= %0.1f deg F" % (h2oOutTempF)
-	
+
 	return (ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF)
 
 #________________________________________________
 def GetBarometerData():
 	# Returns current and delta barometric pressures in inch mercury
-	
+
 	currentPressure   = baroController.getPressure()
 	currentPressDelta = baroController.getPressureDelta()
 	return (currentPressure,currentPressDelta)
@@ -256,7 +279,7 @@ def SetSevenSegDisplay(a,b,c,d):
 	sevenSegDisplay.set_digit(2, c)
 	sevenSegDisplay.set_digit(3, d)
 	sevenSegDisplay.set_colon(True)
-	
+
 	# Write display buffer to hardware
 	# Must be called to update actual display LEDs
 	sevenSegDisplay.write_display()
