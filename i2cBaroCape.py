@@ -49,7 +49,8 @@ CRC_TABLE = [0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31,
 			 116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53]
 
 # First make sure required I2C devices are connected
-# We need 1-wire interface to temperature sensors, MPL3116A barometer module, and 7-segment display
+# We need 1-wire interface to temperature sensors, MPL3116A barometer module,
+#  and 7-segment display
 try:
 	temperatureController = DS2482.DS2482(address=0x18, busnum=2)
 	result = temperatureController.DS2482_reset()
@@ -72,7 +73,8 @@ except Exception:
 
 try:
 	baroController = BaroSense.Barometer(address=0x60, busnum=2)
-	status, ctrl1, ctrl2, ctrl3, ctrl4, ctrl5 = baroController.getStatusAndControlRegisters()
+	status, ctrl1, ctrl2, ctrl3, ctrl4, ctrl5 = \
+		baroController.getStatusAndControlRegisters()
 except Exception:
 	print "*** MPL3116A2 barometer module not found!"
 	sys.exit()
@@ -91,22 +93,22 @@ def main():
 	baroController.setBarometerMode()
 
 	# Display - display current time
-	now = datetime.datetime.now()
-	hour = now.hour - 5       			# convert to local time
-	minute = now.minute
-	second = now.second
+#	now = datetime.datetime.now()
+#	hour = now.hour - 5       			# convert to local time
+#	minute = now.minute
+#	second = now.second
 
 	sevenSegDisplay.clear()
 	# Set hours
-	sevenSegDisplay.set_digit(0, int(hour / 10))	# Tens
-	sevenSegDisplay.set_digit(1, hour % 10)			# Ones
+#	sevenSegDisplay.set_digit(0, int(hour / 10))	# Tens
+#	sevenSegDisplay.set_digit(1, hour % 10)			# Ones
 	# Set minutes
-	sevenSegDisplay.set_digit(2, int(minute / 10))	# Tens
-	sevenSegDisplay.set_digit(3, minute % 10)		# Ones
+#	sevenSegDisplay.set_digit(2, int(minute / 10))	# Tens
+#	sevenSegDisplay.set_digit(3, minute % 10)		# Ones
 	# Toggle colon
-	sevenSegDisplay.set_colon(1)
+#	sevenSegDisplay.set_colon(1)
 
-	SetSevenSegDisplay(int(hour/10), hour%10, int(minute/10), minute%10)
+#	SetSevenSegDisplay(int(hour/10), hour%10, int(minute/10), minute%10)
 
 	numSamples = 0
 
@@ -120,7 +122,8 @@ def main():
 	time.sleep(1.0)
 
 	sevenSegDisplay.set_colon(False)
-	print "[Date\t\tTime]\t[Out-Temp  In-Temp  Press]\t[Main-Rad  Lib-Rad  Rad-Supply]\t[H2O-In  H2O-Out]"
+	print ("[Date\t\tTime]\t[Out-Temp  In-Temp  Press]\t[Main-Rad  Lib-Rad  Rad-Supply]\t\
+		[H2O-In  H2O-Out]")
 
 	while True:
 		try:
@@ -128,18 +131,23 @@ def main():
 			today = datetime.date.today()
 #			print "%s\t%d:%d:%d" % (today, now[3], now[4], now[5])
 
-			ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF = GetTemperatureData()
+			# Turn 7-seg colon off to indicate measurements in progress
+			sevenSegDisplay.set_colon(False)
+			
+			ambTempF,mainRadTempF,libRadTempF,radSupTempF,h2oInTempF,h2oOutTempF,outTempF = \
+				GetTemperatureData()
 			currentPressure,currentPressDelta = GetBarometerData()
 			numSamples += 1
 
 			# Print what we are putting in BaroData.txt
-			print ("[%s  %d:%d:%d]\t[%.1f\t%.1f\t%.1f]\t\t[%.1f\t%.1f\t%.1f]\t\t[%.1f\t%.1f]" % (today, now[3]-5, now[4], now[5],
-				outTempF, ambTempF, currentPressure, mainRadTempF, libRadTempF, radSupTempF, h2oInTempF, h2oOutTempF))
+			print ("[%s  %d:%d:%d]\t[%.1f\t%.1f\t%.1f]\t\t[%.1f\t%.1f\t%.1f]\t\t[%.1f\t%.1f]" % 
+				(today, now[3]-5, now[4], now[5], outTempF, ambTempF, currentPressure, 
+				mainRadTempF, libRadTempF, radSupTempF, h2oInTempF, h2oOutTempF))
 
 			file = open("BaroData.txt",'a')
 			file.write("%s\t%d:%d:%d\t%.1f\t%.1f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n" %
-					(today, now[3]-5, now[4], now[5], outTempF, ambTempF, currentPressure,
-					mainRadTempF, libRadTempF, radSupTempF, h2oInTempF, h2oOutTempF))
+				(today, now[3]-5, now[4], now[5], outTempF, ambTempF, currentPressure,
+				mainRadTempF, libRadTempF, radSupTempF, h2oInTempF, h2oOutTempF))
 			file.close()
 
 			# Display pressure on 7-seg display
@@ -147,7 +155,7 @@ def main():
 #			sevenSegDisplay.write_display()
 
 			# Display time on 7-seg display
-			# TBD - make a displayCUrrentTime() function?
+			DisplayCurrentTime()	# also turns colon back on
 
 			time.sleep(SAMPLE_PERIOD)
 		except KeyboardInterrupt:
@@ -174,8 +182,8 @@ def GetTemperatureData():
 	temperatureController.DS2482_owWriteByte(0x44)		# DS18B20 Convert T
 
 	# Capture and display conversion time
-	timestr = time.ctime(time.time())
-#	print "---------- [%d] Temperature conversion started: %s ----------" % (numTempSamples+1,timestr)
+#	timestr = time.ctime(time.time())
+#	print "----- [%d] Temperature conversion started: %s -----" % (numTempSamples+1,timestr)
 
 	# Wait for temperature conversion (750 ms for 12 bits)
 	time.sleep(0.8)
@@ -288,6 +296,14 @@ def SetSevenSegDisplay(a,b,c,d):
 	# Write display buffer to hardware
 	# Must be called to update actual display LEDs
 	sevenSegDisplay.write_display()
+
+#________________________________________________
+def DisplayCurrentTime():
+	now = datetime.datetime.now()
+	hour = now.hour - 5       			# convert to local time
+	minute = now.minute
+#	second = now.second
+	SetSevenSegDisplay(int(hour/10), hour%10, int(minute/10), minute%10)
 
 #________________________________________________
 if __name__ == '__main__':
