@@ -2,7 +2,7 @@
 Collects temperature and barometric data using BaroCape.
 
 Writes data to BaroData.txt.
-Last touched: 09/13/2017
+Last touched: 01/17/2019
 """
 
 import array
@@ -13,7 +13,7 @@ import DS2482
 from Adafruit_LED_Backpack import SevenSegment
 import MPL3116A2_Barometer as BaroSense
 
-SAMPLE_PERIOD = 100		# seconds between data samples
+SAMPLE_PERIOD = 30		# seconds between data samples
 
 # Temperature sensor codes and locations
 # Sensor 0 (0x5F000003AA865228) - breadboard, basement ambient temperature
@@ -23,13 +23,13 @@ SAMPLE_PERIOD = 100		# seconds between data samples
 # Sensor 4 (0x77000003AA72EB28) - H20 heater input temperature
 # Sensor 5 (0x16000003AAAA6E28) - H20 heater output temperature
 # Sensor 6 (0xBC0000043EFFC128) - Outside temperature
-ROM_CODE = [[0x28,0x52,0x86,0xAA,0x03,0x00,0x00,0x5F], 
-			[0x28,0x8A,0x61,0xAA,0x03,0x00,0x00,0xB1], 
-			[0x28,0x2E,0x89,0xAA,0x03,0x00,0x00,0xD5], 
-			[0x28,0xC2,0xAB,0xAA,0x03,0x00,0x00,0xFA], 
-			[0x28,0x6E,0xAA,0xAA,0x03,0x00,0x00,0x16], 
-			[0x28,0xEB,0x72,0xAA,0x03,0x00,0x00,0x77], 
-			[0x28,0xC1,0xFF,0x3E,0x04,0x00,0x00,0xBC]] 
+ROM_CODE = [[0x28,0x52,0x86,0xAA,0x03,0x00,0x00,0x5F],
+			[0x28,0x8A,0x61,0xAA,0x03,0x00,0x00,0xB1],
+			[0x28,0x2E,0x89,0xAA,0x03,0x00,0x00,0xD5],
+			[0x28,0xC2,0xAB,0xAA,0x03,0x00,0x00,0xFA],
+			[0x28,0x6E,0xAA,0xAA,0x03,0x00,0x00,0x16],
+			[0x28,0xEB,0x72,0xAA,0x03,0x00,0x00,0x77],
+			[0x28,0xC1,0xFF,0x3E,0x04,0x00,0x00,0xBC]]
 
 CRC_TABLE = [0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
 			 157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,
@@ -92,19 +92,19 @@ def main():
 
 	# Display - display current time
 	now = datetime.datetime.now()
-	hour = now.hour - 4       			# convert to local time
+	hour = now.hour - 5       			# convert to local time
 	minute = now.minute
 	second = now.second
 
 	sevenSegDisplay.clear()
 	# Set hours
-#	sevenSegDisplay.set_digit(0, int(hour / 10))	# Tens
-#	sevenSegDisplay.set_digit(1, hour % 10)			# Ones
+	sevenSegDisplay.set_digit(0, int(hour / 10))	# Tens
+	sevenSegDisplay.set_digit(1, hour % 10)			# Ones
 	# Set minutes
-#	sevenSegDisplay.set_digit(2, int(minute / 10))	# Tens
-#	sevenSegDisplay.set_digit(3, minute % 10)		# Ones
+	sevenSegDisplay.set_digit(2, int(minute / 10))	# Tens
+	sevenSegDisplay.set_digit(3, minute % 10)		# Ones
 	# Toggle colon
-#	sevenSegDisplay.set_colon(second % 2)			# Toggle colon at 1Hz
+	sevenSegDisplay.set_colon(1)
 
 	SetSevenSegDisplay(int(hour/10), hour%10, int(minute/10), minute%10)
 
@@ -112,15 +112,15 @@ def main():
 
 	# Open data file
 	file = open("BaroData.txt",'w')
-	file.write("Date\tTime\tOut Temp\tIn Temp\tPressure\n")
+	file.write("Date\tTime\tOut Temp\tIn Temp\tPressure\tMain Rad Temp\tLib Rad Temp\tRad Supply Temp\tH2O In Temp\tH2O Out Temp\n")
 	file.close()
 
 	# Ready to go - pause to catch our breath
 	print "\n=============================="
-	time.sleep(2.0)
+	time.sleep(1.0)
 
 	sevenSegDisplay.set_colon(False)
-	print "Date\tTime\tOut Temp (deg F)\tIn Temp\tPressure (in mm)"
+	print "[Date\t\tTime]\t[Out-Temp  In-Temp  Press]\t[Main-Rad  Lib-Rad  Rad-Supply]\t[H2O-In  H2O-Out]"
 
 	while True:
 		try:
@@ -133,16 +133,21 @@ def main():
 			numSamples += 1
 
 			# Print what we are putting in BaroData.txt
-			print "%s\t%d:%d:%d\t%.1f\t%.1f\t%.1f" % (today, now[3], now[4], now[5], outTempF, ambTempF, currentPressure)
+			print ("[%s  %d:%d:%d]\t[%.1f\t%.1f\t%.1f]\t\t[%.1f\t%.1f\t%.1f]\t\t[%.1f\t%.1f]" % (today, now[3]-5, now[4], now[5],
+				outTempF, ambTempF, currentPressure, mainRadTempF, libRadTempF, radSupTempF, h2oInTempF, h2oOutTempF))
 
 			file = open("BaroData.txt",'a')
-			file.write("%s\t%d:%d:%d\t%.1f\t%.1f\t%.2f\n" % 
-					(today, now[3], now[4], now[5], outTempF, ambTempF, currentPressure))
+			file.write("%s\t%d:%d:%d\t%.1f\t%.1f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n" %
+					(today, now[3]-5, now[4], now[5], outTempF, ambTempF, currentPressure,
+					mainRadTempF, libRadTempF, radSupTempF, h2oInTempF, h2oOutTempF))
 			file.close()
 
 			# Display pressure on 7-seg display
-			sevenSegDisplay.print_float(currentPressure)
-			sevenSegDisplay.write_display()
+#			sevenSegDisplay.print_float(currentPressure)
+#			sevenSegDisplay.write_display()
+
+			# Display time on 7-seg display
+			# TBD - make a displayCUrrentTime() function?
 
 			time.sleep(SAMPLE_PERIOD)
 		except KeyboardInterrupt:
